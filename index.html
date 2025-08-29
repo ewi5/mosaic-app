@@ -3,50 +3,36 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mosaic • v08</title>
-  <link rel="preconnect" href="https://api.open-meteo.com">
+  <title>mosaic</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main class="wrap">
-    <!-- SKY (left column) -->
+  <div class="app">
+    <!-- LEFT SKY PANE -->
     <aside class="sky">
-      <div class="sky__badge">auto</div>
-      <div class="sky__stars" aria-hidden="true"></div>
-      <div class="sky__panel">
+      <div class="sky-inner">
         <h1 class="brand">mosaic</h1>
-        <div class="locrow">
-          <span class="pin">📍</span>
-          <span id="coords">—</span>
-        </div>
-        <div id="weather">—</div>
-        <div id="clock">—</div>
-        <p class="hint">left = location • weather • time<br/>right = your people</p>
+        <div class="sky-line" id="geoLine">📍 …</div>
+        <div class="sky-line" id="weatherLine">…</div>
+        <div class="sky-line" id="timeLine">…</div>
+        <div class="legend">left = location • weather • time<br>right = your people</div>
+      </div>
+
+      <!-- ANALOG STICK -->
+      <div class="stick-base" id="stickBase" aria-label="analog control">
+        <div class="stick" id="stick"></div>
       </div>
     </aside>
 
-    <!-- BUILDING (right column) -->
-    <section class="building">
-      <h2 class="visually-hidden">People</h2>
-      <div id="grid" class="grid"></div>
-    </section>
-  </main>
+    <!-- RIGHT BUILDING / PEOPLE GRID -->
+    <main class="building">
+      <header class="topper">
+        <div class="tag">live prototype — connected via GitHub → Netlify</div>
+      </header>
 
-  <template id="card-tpl">
-    <article class="window">
-      <div class="id">
-        <div class="avatar" aria-hidden="true"></div>
-        <div class="label">
-          <div class="name"></div>
-          <div class="meta">ring = days since proof</div>
-        </div>
-      </div>
-      <div class="actions">
-        <button class="pill knock">knock</button>
-        <button class="pol">pol</button>
-      </div>
-    </article>
-  </template>
+      <section id="grid" class="grid"></section>
+    </main>
+  </div>
 
   <script src="script.js"></script>
 </body>
