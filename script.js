@@ -1,182 +1,134 @@
-// ---------- helpers ----------
-const $ = sel => document.querySelector(sel);
-
-function hashString(str){
-  let h = 0; for(let i=0;i<str.length;i++){ h = (h<<5) - h + str.charCodeAt(i); h |= 0; }
-  return Math.abs(h);
-}
-
-// Apple-ish deterministic color palette for initials
-const APPLEISH = [
-  '#f06292', '#9575cd', '#64b5f6', '#4dd0e1', '#81c784', '#ffd54f', '#ff8a65',
-  '#ba68c8', '#7986cb', '#4fc3f7', '#4db6ac', '#aed581', '#ffb74d', '#e57373'
+/* V10 — smaller buttons, 3x3 grid, glassy smaller joystick */
+const contacts = [
+  {name:"viv", days:8},
+  {name:"mom", days:7},
+  {name:"dad", days:7},
+  {name:"sis", days:2},
+  {name:"bro", days:5},
+  {name:"gabe", days:6},
+  {name:"lang", days:3},
+  {name:"helen", days:4},
+  {name:"kai", days:6},
 ];
-function initialsColor(name){
-  const i = hashString(name.toLowerCase()) % APPLEISH.length;
-  return APPLEISH[i];
+
+// Apple-ish deterministic color from name
+function appleColorFor(name){
+  // palette approximating iOS Contact tints
+  const palette = [
+    "#8e9cff", "#5fb3ff", "#4fd1c5", "#66d17a", "#b7e374",
+    "#ffd166", "#ff9f59", "#ff7a7a", "#e16bff", "#b48cff",
+    "#6ecbff", "#43e3d8", "#66e6a3", "#d4ef6d", "#ffc36b",
+    "#ff9bb1", "#f071e0", "#c5a3ff"
+  ];
+  let h=0; for (let i=0;i<name.length;i++){ h = (h*31 + name.charCodeAt(i))>>>0; }
+  return palette[h % palette.length];
 }
 
-// make initials: first + last initial, lowercase
 function initials(name){
-  const parts = name.trim().toLowerCase().split(/\s+/);
-  if(parts.length===1) return parts[0].slice(0,1);
-  return (parts[0][0] + parts[parts.length-1][0]);
+  const parts = name.trim().split(/\s+/);
+  const f = parts[0]?.[0] || "";
+  const l = (parts[1]?.[0]) || (parts[0]?.[1]||"");
+  return (f+l||f).toLowerCase();
 }
 
-// ---------- sample data ----------
-const people = [
-  { name:'viv', days:8 },
-  { name:'mom', days:7 },
-  { name:'dad', days:7 },
-  { name:'sis', days:2 },
-  { name:'bro', days:5 },
-  { name:'gabe', days:6 },
-  { name:'lang', days:1 },
-  { name:'helen', days:3 },
-  { name:'tulio', days:7 },
-  { name:'nina', days:8 },
-  { name:'ryan', days:8 },
-  { name:'kai', days:6 },
-];
-
-// ---------- build grid ----------
-function makeCard(p){
-  const card = document.createElement('article');
-  card.className = 'card';
-
-  const top = document.createElement('div');
-  top.className = 'row';
-
-  const av = document.createElement('div');
-  av.className = 'avatar';
-  av.textContent = initials(p.name);
-  av.style.background = initialsColor(p.name);
-
-  const nm = document.createElement('div');
-  nm.className = 'name';
-  nm.textContent = p.name.toLowerCase();
-
-  top.appendChild(av); top.appendChild(nm);
-
-  const days = document.createElement('div');
-  days.className = 'days';
-  days.textContent = `days since pol: ${p.days}`;
-
-  const actions = document.createElement('div');
-  actions.className = 'actions';
-  const knock = Object.assign(document.createElement('button'), { className:'pill', type:'button', textContent:'knock' });
-  const pol   = Object.assign(document.createElement('button'), { className:'circle', type:'button', textContent:'pol' });
-  actions.append(knock, pol);
-
-  card.append(top, days, actions);
-  return card;
+// Render grid 3x3
+function render(){
+  const grid = document.getElementById('grid');
+  grid.innerHTML = "";
+  contacts.slice(0,9).forEach(c=>{
+    const el = document.createElement('article');
+    el.className = "window";
+    el.innerHTML = `
+      <div class="row">
+        <div class="avatar" style="background:${appleColorFor(c.name)}">${initials(c.name)}</div>
+        <div class="name">${c.name}</div>
+        <div class="age">${c.days}d</div>
+      </div>
+      <div class="pol-age">days since pol: ${c.days}</div>
+      <div class="actions">
+        <button class="pill">knock</button>
+        <button class="pol" title="proof of life"></button>
+      </div>
+    `;
+    grid.appendChild(el);
+  });
 }
+render();
 
-function buildGrid(){
-  const grid = $('#grid');
-  grid.innerHTML = '';
-  people.forEach(p => grid.appendChild(makeCard(p)));
-}
-buildGrid();
+/* Clock */
+const clock = document.getElementById('clock');
+setInterval(()=>{
+  clock.textContent = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+}, 1000);
 
-// ---------- clock ----------
-function tickClock(){
-  const d = new Date();
-  const hrs = d.getHours();
-  const hours12 = ((hrs + 11) % 12) + 1;
-  const mins = String(d.getMinutes()).padStart(2, '0');
-  const secs = String(d.getSeconds()).padStart(2, '0');
-  const ampm = hrs >= 12 ? 'PM':'AM';
-  $('#timeLine').textContent = `${hours12}:${mins}:${secs} ${ampm}`;
-}
-setInterval(tickClock, 1000); tickClock();
-
-// ---------- geolocation (cached 12h) + weather ----------
-const GEO_KEY = 'mosaic_geo_cache_v1';
-const GEO_TTL = 1000 * 60 * 60 * 12; // 12 hours
-
+/* Geolocation cache (12h) */
+const GEO_KEY = "mosaic_geo_v10";
 async function getGeo(){
-  // try cache
+  const now = Date.now();
   try{
-    const raw = localStorage.getItem(GEO_KEY);
-    if(raw){
-      const obj = JSON.parse(raw);
-      if(Date.now() - obj.when < GEO_TTL) return obj.coords;
-    }
-  }catch(e){}
-
-  // request if not cached / expired
-  const coords = await new Promise((resolve, reject)=>{
-    if(!navigator.geolocation) return reject(new Error('no geo'));
-    navigator.geolocation.getCurrentPosition(
-      pos => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
-      err => reject(err),
-      { enableHighAccuracy:false, timeout:7000, maximumAge: 5*60*1000 }
-    );
-  }).catch(()=> null);
-
-  if(coords){
-    localStorage.setItem(GEO_KEY, JSON.stringify({ when: Date.now(), coords }));
-  }
-  return coords;
+    const cached = JSON.parse(localStorage.getItem(GEO_KEY)||"null");
+    if(cached && (now - cached.t) < 12*60*60*1000){ return cached; }
+  }catch{}
+  return new Promise((resolve)=>{
+    navigator.geolocation.getCurrentPosition(pos=>{
+      const data = {lat:pos.coords.latitude, lon:pos.coords.longitude, t:Date.now()};
+      localStorage.setItem(GEO_KEY, JSON.stringify(data));
+      resolve(data);
+    }, _err=>{
+      // fallback: downtown LA-ish
+      const data = {lat:34.05, lon:-118.32, t:Date.now()};
+      localStorage.setItem(GEO_KEY, JSON.stringify(data));
+      resolve(data);
+    }, {enableHighAccuracy:false, maximumAge: 6*60*60*1000, timeout:8000});
+  });
 }
 
-async function fetchWeather(lat, lon){
-  try{
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m`;
-    const res = await fetch(url, { cache:'no-store' });
-    const data = await res.json();
-    const t = Math.round(data?.current?.temperature_2m ?? 0);
-    const w = Math.round(data?.current?.wind_speed_10m ?? 0);
-    return { t, w };
-  }catch(e){ return null; }
+async function getWeather(lat, lon){
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m`;
+  const r = await fetch(url);
+  const j = await r.json();
+  return {
+    temp: Math.round(j.current.temperature_2m),
+    wind: Math.round(j.current.wind_speed_10m)
+  };
 }
 
-(async function initLeftPane(){
-  let coords = await getGeo();
-  if(!coords){
-    // fallback: show "auto" and no prompt again
-    $('#geoLine').textContent = '📍 auto';
-    $('#weatherLine').textContent = 'weather unavailable';
-    return;
+(async function initWeather(){
+  const geo = await getGeo();
+  document.getElementById('coords').textContent = `${geo.lat.toFixed(2)}, ${geo.lon.toFixed(2)}`;
+  try{
+    const w = await getWeather(geo.lat, geo.lon);
+    document.getElementById('temp').textContent = `${w.temp}°`;
+    document.getElementById('wind').textContent = w.wind;
+  }catch(e){
+    document.getElementById('temp').textContent = `--°`;
+    document.getElementById('wind').textContent = `--`;
   }
-  const lat = coords.lat.toFixed(2);
-  const lon = coords.lon.toFixed(2);
-  $('#geoLine').textContent = `📍 ${lat}, ${lon}`;
-
-  const w = await fetchWeather(coords.lat, coords.lon);
-  if(w) $('#weatherLine').textContent = `${w.t}° • wind ${w.w}`;
-  else $('#weatherLine').textContent = 'weather unavailable';
 })();
 
-// ---------- analog stick ----------
-(function stickInit(){
-  const base = document.getElementById('stickBase');
+/* Joystick */
+(function joystick(){
   const stick = document.getElementById('stick');
-  const center = () => {
-    stick.style.left = '50%'; stick.style.top = '50%'; stick.style.transform = 'translate(-50%,-50%)';
-  };
-  center();
-
-  let active = false;
-  function set(e){
-    const rect = base.getBoundingClientRect();
-    const cx = rect.left + rect.width/2;
-    const cy = rect.top + rect.height/2;
-    const x = (e.touches ? e.touches[0].clientX : e.clientX) - cx;
-    const y = (e.touches ? e.touches[0].clientY : e.clientY) - cy;
-    const max = rect.width/2 - 10;
-    const len = Math.hypot(x,y);
-    const clamped = len > max ? max/len : 1;
-    const nx = x * clamped;
-    const ny = y * clamped;
-    stick.style.transform = `translate(${nx}px, ${ny}px)`;
-    // You could dispatch a custom event with the vector if needed
-    // base.dispatchEvent(new CustomEvent('vector', { detail:{ x:nx/max, y:ny/max } }));
+  const knob  = document.getElementById('knob');
+  const rBase = stick.clientWidth/2;
+  const rKnob = knob.clientWidth/2;
+  let center = {x: stick.offsetLeft + rBase, y: stick.offsetTop + rBase};
+  function setKnob(dx, dy){
+    knob.style.left = (rBase + dx - rKnob) + "px";
+    knob.style.top  = (rBase + dy - rKnob) + "px";
   }
-  function end(){ active=false; center(); }
-
-  ['mousedown','touchstart'].forEach(ev => base.addEventListener(ev, (e)=>{ active=true; set(e); }));
-  ['mousemove','touchmove'].forEach(ev => window.addEventListener(ev, (e)=>{ if(active) set(e); }, { passive:false }));
-  ['mouseup','mouseleave','touchend','touchcancel'].forEach(ev => window.addEventListener(ev, end));
+  function handle(e){
+    const rect = stick.getBoundingClientRect();
+    center = {x: rect.left + rBase, y: rect.top + rBase};
+    const p = ('touches' in e ? e.touches[0] : e);
+    const dx = p.clientX - center.x;
+    const dy = p.clientY - center.y;
+    const dist = Math.min(Math.hypot(dx,dy), rBase - rKnob - 4);
+    const ang = Math.atan2(dy, dx);
+    setKnob(Math.cos(ang)*dist, Math.sin(ang)*dist);
+    // emit vector later if needed
+  }
+  function end(){ setKnob(0,0); }
+  stick.addEventListener('mousedown', e=>{ handle(e); window.addEventListener('mousemove', handle); window.addEventListener('mouseup', ()=>{window.removeEventListener('mousemove', handle); end();}, {once:true}); });
+  stick.addEventListener('touchstart', e=>{ handle(e); window.addEventListener('touchmove', handle, {passive:false}); window.addEventListener('touchend', ()=>{window.removeEventListener('touchmove', handle); end();}, {once:true}); }, {passive:false});
 })();

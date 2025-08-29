@@ -1,37 +1,31 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>mosaic</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-  <div class="app">
-    <!-- LEFT SKY PANE -->
+  <div id="app">
     <aside class="sky">
-      <div class="sky-inner">
-        <h1 class="brand">mosaic</h1>
-        <div class="sky-line" id="geoLine">📍 …</div>
-        <div class="sky-line" id="weatherLine">…</div>
-        <div class="sky-line" id="timeLine">…</div>
-        <div class="legend">left = location • weather • time<br>right = your people</div>
-      </div>
-
-      <!-- ANALOG STICK -->
-      <div class="stick-base" id="stickBase" aria-label="analog control">
-        <div class="stick" id="stick"></div>
+      <h1 class="brand">mosaic</h1>
+      <div class="weather">
+        <div class="line"><span class="pin">📍</span><span id="coords">--</span></div>
+        <div class="line"><span id="temp">--°</span> • wind <span id="wind">--</span></div>
+        <div class="line" id="clock">--:--:--</div>
       </div>
     </aside>
 
-    <!-- RIGHT BUILDING / PEOPLE GRID -->
     <main class="building">
-      <header class="topper">
-        <div class="tag">live prototype — connected via GitHub → Netlify</div>
-      </header>
-
+      <header class="subtitle">live prototype — connected via <span>GitHub → Netlify</span></header>
       <section id="grid" class="grid"></section>
     </main>
+  </div>
+
+  <!-- analog stick -->
+  <div class="joystick glass" id="stick">
+    <div class="knob" id="knob"></div>
   </div>
 
   <script src="script.js"></script>

@@ -1,134 +1,151 @@
-/* ========== Base ========== */
+/* Night sky + building layout */
 :root{
-  --bg:#0b0d10;
-  --card:#1a1f26;
-  --card-2:#192028;
-  --ink:#e8eef7;
-  --sub:#9aa4af;
-  --glow:#b26cff;
+  --bg:#0b0f14;
+  --panel:#151a21;
+  --panel2:#11161d;
+  --text:#e9eef5;
+  --muted:#9fb0c3;
+  --pill:#1a1f26;
+  --polGrad: radial-gradient(45% 45% at 30% 30%, #b68cff, #ff74c1 60%, #ff9a6e 100%);
+  --glass: rgba(255,255,255,.06);
+  --blur: 14px;
 }
+
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
   margin:0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
-  color:var(--ink);
-  background: radial-gradient(1200px 800px at 10% 20%, #0e1016 0%, #0b0d10 60%, #080a0d 100%);
-  overflow-x:hidden;
+  background: radial-gradient(1200px 800px at 10% 20%, #0f1622, #090c11 55%, #05070a);
+  color:var(--text);
+  font-family:-apple-system, ui-sans-serif, system-ui, "SF Pro Text", Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* ========== Layout ========== */
-.app{
-  display:grid;
-  grid-template-columns: minmax(220px,28vw) 1fr;
-  gap:0;
-  min-height:100vh;
+/* subtle stars */
+body:before{
+  content:"";
+  position:fixed; inset:0;
+  background:
+    radial-gradient(2px 2px at 12% 32%, #ffffff22 50%, transparent 51%),
+    radial-gradient(2px 2px at 7% 68%, #ffffff18 50%, transparent 51%),
+    radial-gradient(2px 2px at 18% 12%, #ffffff1a 50%, transparent 51%),
+    radial-gradient(2px 2px at 14% 84%, #ffffff1a 50%, transparent 51%),
+    radial-gradient(2px 2px at 22% 52%, #ffffff14 50%, transparent 51%);
+  pointer-events:none;
 }
+
+#app{
+  display:grid;
+  grid-template-columns: 280px 1fr;  /* narrower sky */
+  gap:24px;
+  height:100vh;
+  padding:28px clamp(16px, 3vw, 36px);
+}
+
+/* SKY (left) */
 .sky{
   position:relative;
-  padding:16px 16px 120px;
-  border-right:1px solid rgba(255,255,255,.06);
-  background:
-    radial-gradient(1500px 900px at -10% -20%, #141824 0%, rgba(20,24,36,0) 70%),
-    radial-gradient(900px 600px at 40% 0%, #0f1320 0%, rgba(15,19,32,0) 70%);
+  padding-right:12px;
 }
-.sky:before, .sky:after{
-  /* stars */
-  content:"";
-  position:absolute; inset:0;
-  background-image:
-    radial-gradient(1px 1px at 20% 10%, #fff9 90%, transparent 92%),
-    radial-gradient(1.2px 1.2px at 70% 35%, #fff7 90%, transparent 92%),
-    radial-gradient(1px 1px at 35% 60%, #fff9 90%, transparent 92%),
-    radial-gradient(1.4px 1.4px at 10% 80%, #fff6 90%, transparent 92%);
-  opacity:.7;
-  pointer-events:none;
+.brand{
+  margin:0 0 14px;
+  font-weight:800;
+  font-size:44px;
+  letter-spacing:0.5px;
+  text-transform:lowercase;
 }
-.sky-inner{position:relative; z-index:2}
-.brand{font-size:32px; margin:6px 0 12px 0; letter-spacing:.5px}
-.sky-line{color:var(--ink); opacity:.9; margin:6px 0; font-size:15px}
-.legend{margin-top:10px; color:var(--sub); font-size:12px; opacity:.8}
+.weather .line{ color:var(--muted); margin:8px 0; font-weight:600 }
+.pin{margin-right:8px}
 
-.building{padding:20px; min-width:0}
-.topper .tag{color:var(--sub); font-size:12px; margin:0 0 12px 4px; opacity:.8}
-
+/* BUILDING (right) */
+.building{
+  display:flex; flex-direction:column;
+  min-width:0;
+}
+.subtitle{
+  color:#93a6bb;
+  font-size:14px;
+  margin-bottom:14px;
+  opacity:.8;
+}
 .grid{
+  --cols:3;
   display:grid;
-  grid-template-columns: repeat(3, minmax(220px, 1fr));
-  gap:16px;
+  grid-template-columns: repeat(var(--cols), minmax(220px, 1fr));
+  gap:18px 18px;
   align-content:start;
+  padding-right:8px;
 }
 
-/* ========== Person Card ("Window") ========== */
-.card{
-  background: linear-gradient(180deg, var(--card) 0%, var(--card-2) 100%);
-  border-radius:18px;
-  padding:18px;
-  position:relative;
-  box-shadow: 0 6px 24px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.04);
-}
-.card:after{
-  /* room glow */
-  content:"";
-  position:absolute; inset:-2px;
-  border-radius:20px;
-  background: radial-gradient(260px 180px at 20% 15%, rgba(255,216,160,.10), transparent 60%);
-  pointer-events:none;
+/* window card */
+.window{
+  background: linear-gradient(180deg, var(--panel), var(--panel2));
+  border-radius:22px;
+  padding:18px 18px 16px;
+  box-shadow: 0 10px 30px #0007, inset 0 1px 0 #ffffff08;
+  border:1px solid #ffffff0e;
 }
 .row{display:flex; align-items:center; gap:14px}
+.name{font-size:22px; font-weight:800; text-transform:lowercase}
+.age{margin-left:auto; color:var(--muted); font-weight:700}
+
+/* avatar (Apple-style circle) */
 .avatar{
-  width:64px; height:64px; border-radius:999px;
+  width:76px; height:76px; border-radius:50%;
   display:grid; place-items:center;
-  font-weight:700; text-transform:lowercase;
-  color:#fff; letter-spacing:.5px; font-size:20px;
-  box-shadow:0 10px 24px rgba(0,0,0,.35);
+  font-size:28px; font-weight:900; text-transform:lowercase;
+  color:white; filter: drop-shadow(0 6px 16px rgba(0,0,0,.35));
 }
-.name{font-size:22px; text-transform:lowercase; font-weight:700; letter-spacing:.2px}
-.days{margin:10px 0 12px; font-size:14px; color:var(--sub)}
 
-/* Buttons */
-.actions{display:flex; gap:12px; align-items:center}
+/* info line ABOVE buttons */
+.pol-age{ color:#c6d2e3; opacity:.85; margin:16px 0 10px; font-weight:700 }
+
+/* actions — smaller */
+.actions{ display:flex; align-items:center; gap:12px }
 .pill{
-  background:#0e1115;
-  color:#d9dee6;
-  padding:10px 14px;
+  background:var(--pill);
+  color:#e7eef6;
+  border:none; outline:0;
+  padding:10px 16px;
   border-radius:999px;
-  font-size:14px; font-weight:600;
-  border:1px solid rgba(255,255,255,.05);
+  font-weight:800;
+  letter-spacing:.2px;
+  box-shadow: 0 1px 0 #ffffff10 inset, 0 6px 14px rgba(0,0,0,.35);
+  cursor:pointer;
 }
-.circle{
-  width:44px; height:44px; border-radius:999px;
-  display:grid; place-items:center;
-  font-weight:700;
-  background: radial-gradient(120% 120% at 80% 10%, #ff7ef2, #a36bff 55%, #6b8bff 100%);
-  color:#fff;
-  box-shadow:0 0 24px rgba(178,108,255,.45);
-  border:1px solid rgba(255,255,255,.08);
-}
-
-/* ========== Analog Stick ========== */
-.stick-base{
-  position:fixed;
-  left:18px; bottom:18px;
-  width:128px; height:128px; border-radius:999px;
-  background: radial-gradient(140px 140px at 30% 30%, #dfe6ef 0%, #c0c8d6 65%, #a7b0bf 100%);
-  box-shadow: inset 0 6px 10px rgba(255,255,255,.6), inset 0 -6px 14px rgba(0,0,0,.18), 0 18px 40px rgba(0,0,0,.35);
-  user-select:none; touch-action:none;
-}
-.stick{
-  position:absolute;
-  left:50%; top:50%; transform:translate(-50%,-50%);
-  width:64px; height:64px; border-radius:999px;
-  background: linear-gradient(180deg,#f6f8fb,#cfd7e4);
-  box-shadow: 0 10px 24px rgba(0,0,0,.35), inset 0 2px 6px rgba(255,255,255,.9), inset 0 -6px 12px rgba(0,0,0,.15);
+.pol{
+  width:46px; height:46px; border-radius:50%;
+  background:var(--polGrad); border:none; outline:0;
+  box-shadow: 0 6px 20px rgba(187,120,255,.45), 0 0 0 2px #ffffff14 inset;
+  cursor:pointer;
 }
 
-/* ========== Responsiveness ========== */
+/* joystick — smaller + glassy */
+.joystick{
+  position:fixed; left:20px; bottom:24px;
+  width:140px; height:140px; border-radius:50%;
+  backdrop-filter: blur(var(--blur));
+  background: var(--glass);
+  border:1px solid #ffffff18;
+  box-shadow: 0 8px 30px rgba(0,0,0,.45), inset 0 1px 0 #ffffff26;
+}
+.joystick .knob{
+  position:absolute; left:50%; top:50%;
+  width:74px; height:74px; border-radius:50%;
+  transform:translate(-50%,-50%);
+  background: linear-gradient(180deg, #ffffff, #e6ebf3);
+  box-shadow: 0 6px 16px rgba(0,0,0,.35), inset 0 2px 0 #ffffff;
+}
+.glass{backdrop-filter:blur(18px) saturate(120%)}
+
+/* responsive */
 @media (max-width: 980px){
-  .grid{grid-template-columns: repeat(2, minmax(220px, 1fr));}
+  #app{ grid-template-columns: 230px 1fr }
+  .grid{ grid-template-columns: repeat(2, minmax(220px,1fr)); }
 }
 @media (max-width: 720px){
-  .app{grid-template-columns: minmax(180px,32vw) 1fr;}
-  .grid{grid-template-columns: 1fr;}
-  .legend{display:none}
+  #app{ grid-template-columns: 1fr }
+  .sky{ order:0 }
+  .building{ order:1 }
+  .grid{ grid-template-columns: repeat(2, minmax(200px,1fr)); }
+  .joystick{ transform: scale(.9) }
 }
