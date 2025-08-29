@@ -1,48 +1,46 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mosaic</title>
-  <link rel="manifest" href="site.webmanifest">
-  <link rel="icon" href="favicon.ico">
-  <link rel="apple-touch-icon" href="icon.png">
-  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <aside id="leftbar">
-    <div class="brand">mosaic</div>
-    <div class="weather">
-      <span class="pin">📍</span>
-      <span id="wx">auto</span>
-    </div>
-    <div class="clock" id="clock">--:--</div>
-    <div class="hint">left = location • weather • time<br/>right = your people</div>
-  </aside>
-
-  <main id="main">
-    <header class="top">
-      <h1>Mosaic</h1>
-      <div class="sub">live prototype — connected via GitHub → Netlify</div>
-    </header>
-
-    <section id="cards" class="cards"></section>
-  </main>
-
-  <template id="card-tpl">
+  <div class="left-bar">
+    <div id="location">📍 locating...</div>
+    <div id="weather">--° · wind --</div>
+    <div id="time"></div>
+  </div>
+  <div class="building">
     <div class="card">
-      <div class="avatar"></div>
-      <div class="names">
-        <div class="handle"></div>
-      </div>
+      <div class="avatar" style="background:#a26eea;">vv</div>
+      <div class="name">viv</div>
       <div class="actions">
-        <button class="btn knock">knock</button>
-        <button class="btn pol" title="proof of life">pol</button>
+        <button class="knock">knock</button>
+        <button class="pol">pol</button>
       </div>
-      <div class="meta">ring = days since proof</div>
+      <div class="ring">ring = days since proof</div>
     </div>
-  </template>
-
+    <div class="card">
+      <div class="avatar" style="background:#e67e22;">mm</div>
+      <div class="name">mom</div>
+      <div class="actions">
+        <button class="knock">knock</button>
+        <button class="pol">pol</button>
+      </div>
+      <div class="ring">ring = days since proof</div>
+    </div>
+    <div class="card">
+      <div class="avatar" style="background:#3498db;">dd</div>
+      <div class="name">dad</div>
+      <div class="actions">
+        <button class="knock">knock</button>
+        <button class="pol">pol</button>
+      </div>
+      <div class="ring">ring = days since proof</div>
+    </div>
+  </div>
   <script src="script.js"></script>
 </body>
 </html>
