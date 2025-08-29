@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mosaic</title>
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="stylesheet" href="style.css" />
+  <meta name="theme-color" content="#0d0d0d">
+</head>
+<body>
+  <header>
+    <h1>Mosaic</h1>
+    <p>Live prototype — connected via GitHub → Netlify</p>
+  </header>
+
+  <main id="grid"></main>
+
+  <template id="card-template">
+    <div class="card">
+      <div class="avatar">V</div>
+      <div class="name">viv</div>
+      <div class="actions">
+        <button class="btn knock">knock</button>
+        <button class="btn prove">prove</button>
+      </div>
+      <div class="meta">ring = days since proof</div>
+    </div>
+  </template>
+
+  <script src="script.js"></script>
+</body>
+</html>
