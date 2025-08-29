@@ -1,24 +1,15 @@
-# Mosaic — V17
+# mosaic — building UI (opaque, stable)
 
-Liquid-glass **building** on the right. **Sky** on the left.
-- Sky shows **📍 city • temp° • wind • time** (real data via Open‑Meteo).
-- Building is a 3×N grid of **windows** (people). Only the **building scrolls**.
-- Apple-style **initial circles** (lowercase, deterministic colors).
-- **Buttons**: `knock` (black pill), `pol` (glowing circle).
-- **Home/Away**: home = bright avatar glow; away = shade overlay.
+- Left **sky** panel is **fixed** (never scrolls). Shows: `📍 city • temp° • time`.
+- Right **building** panel scrolls and renders a **3×N** grid of people windows.
+- Opaque design. No glass/blur. Minimal motion.
+- `pol` sets `days since pol` to `0` (demo).
+- Location and temperature cached (24h for position, 60m for temp).
 
 ## Files
-- `index.html` — layout (two columns: sky + building)
-- `style.css` — dark theme, glass, stars, pills, 3×N grid
-- `script.js` — fake contacts, weather & reverse geocode, location cache
-- `netlify.toml` — publish config
+- `index.html` – layout (fixed `aside.sky` + scrolling `main.building`).
+- `style.css` – opaque theme; fixed left pane; **3 columns enforced**.
+- `script.js` – rendering, initials color, caching, geolocation, weather.
 
-## Local usage
-Open `index.html` directly. Geolocation prompts once; cached 12h.
-
-## Deploy (Netlify)
-- **Publish directory**: `.`
-- No build command (static site).
-
-## Version
-`v17` — 2025‑08‑29 — eli
+## Deploy
+Drag-drop to Netlify as a static site. No build step required.

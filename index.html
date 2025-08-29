@@ -1,28 +1,29 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Mosaic</title>
-  <link rel="preconnect" href="https://geocoding-api.open-meteo.com">
-  <link rel="preconnect" href="https://api.open-meteo.com">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>mosaic</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main id="app">
-    <section id="sky">
-      <h1 class="brand">mosaic</h1>
-      <div id="metabar">📍 locating…</div>
-      <div id="note">live prototype — connected via GitHub → Netlify</div>
-      <div id="stars" aria-hidden="true"></div>
-      <div class="joycon" aria-hidden="true">
-        <div class="nub"></div>
-      </div>
-    </section>
+  <!-- Left SKY is fixed. Never scrolls. -->
+  <aside class="sky" aria-label="location and time">
+    <h1 class="logo">mosaic</h1>
+    <div class="skyline">
+      📍 <span id="city">auto</span> • <span id="temp">—</span>° • <span id="time">--:--</span>
+    </div>
+    <div class="note">live prototype — connected via GitHub → Netlify</div>
+    <div class="stars" aria-hidden="true"></div>
+    <div class="stick" aria-hidden="true"><div class="stick-cap"></div></div>
+  </aside>
 
-    <section id="building">
-      <div id="grid" class="grid"></div>
-    </section>
+  <!-- Right BUILDING scrolls independently -->
+  <main class="building" id="building" aria-label="contacts grid">
+    <div class="grid" id="grid"></div>
   </main>
 
   <script src="script.js"></script>
