@@ -1,0 +1,77 @@
+name: Auto-unzip & deploy to main
+
+on:
+  push:
+    branches: [ main ]
+    paths: ["*.zip"]     # run whenever ANY .zip in repo root changes
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  unpack:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install unzip
+        run: sudo apt-get update && sudo apt-get install -y unzip
+
+      - name: Find newest zip in repo root
+        id: findzip
+        shell: bash
+        run: |
+          ZIP=$(ls -t *.zip 2>/dev/null | head -n1 || true)
+          if [ -z "$ZIP" ]; then
+            echo "No zip found in repo root"; exit 1
+          fi
+          echo "zipname=$ZIP" >> "$GITHUB_OUTPUT"
+          echo "Using zip: $ZIP"
+
+      - name: Clean repo (keep .git, .github, and the zip)
+        shell: bash
+        run: |
+          ZIP="${{ steps.findzip.outputs.zipname }}"
+          find . -maxdepth 1 -mindepth 1 \
+            ! -name ".git" ! -name ".github" ! -name "$ZIP" \
+            -exec rm -rf {} +
+
+      - name: Unzip into repo root
+        run: unzip -o "${{ steps.findzip.outputs.zipname }}" -d .
+
+      - name: Flatten if a single top-level folder
+        shell: bash
+        run: |
+          shopt -s dotglob
+          COUNT=$(find . -maxdepth 1 -mindepth 1 \
+            ! -name ".git" ! -name ".github" ! -name "${{ steps.findzip.outputs.zipname }}" \
+            -printf "%f\n" | wc -l)
+          if [ "$COUNT" -eq 1 ]; then
+            DIR=$(find . -maxdepth 1 -mindepth 1 -type d \
+              ! -name ".git" ! -name ".github" -printf "%f\n")
+            if [ -n "$DIR" ]; then
+              echo "Flattening folder: $DIR"
+              mv "$DIR"/* .
+              rmdir "$DIR"
+            fi
+          fi
+
+      - name: Remove the zip
+        run: rm -f "${{ steps.findzip.outputs.zipname }}"
+
+      - name: Commit & push changes (if any)
+        shell: bash
+        run: |
+          git config user.name "mosaic-bot"
+          git config user.email "actions@users.noreply.github.com"
+          if [ -n "$(git status --porcelain)" ]; then
+            git add -A
+            git commit -m "deploy: unpack ${{ steps.findzip.outputs.zipname }}"
+            git push
+          else
+            echo "No changes to commit."
+          fi
