@@ -1,17 +1,48 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Mosaic</title>
-  <link rel="stylesheet" href="style.css" />
-  <script defer src="script.js"></script>
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-  <header>
-    <h1>Mosaic</h1>
-    <div id="location">📍 loading...</div>
-  </header>
-  <main id="cards"></main>
+  <aside id="leftbar">
+    <div class="brand">mosaic</div>
+    <div class="weather">
+      <span class="pin">📍</span>
+      <span id="wx">auto</span>
+    </div>
+    <div class="clock" id="clock">--:--</div>
+    <div class="hint">left = location • weather • time<br/>right = your people</div>
+  </aside>
+
+  <main id="main">
+    <header class="top">
+      <h1>Mosaic</h1>
+      <div class="sub">live prototype — connected via GitHub → Netlify</div>
+    </header>
+
+    <section id="cards" class="cards"></section>
+  </main>
+
+  <template id="card-tpl">
+    <div class="card">
+      <div class="avatar"></div>
+      <div class="names">
+        <div class="handle"></div>
+      </div>
+      <div class="actions">
+        <button class="btn knock">knock</button>
+        <button class="btn pol" title="proof of life">pol</button>
+      </div>
+      <div class="meta">ring = days since proof</div>
+    </div>
+  </template>
+
+  <script src="script.js"></script>
 </body>
 </html>
