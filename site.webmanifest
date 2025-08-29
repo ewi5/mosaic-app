@@ -1,9 +1,9 @@
 {
   "name": "Mosaic",
   "short_name": "Mosaic",
-  "start_url": "/",
+  "start_url": ".",
   "display": "standalone",
-  "background_color": "#0b0d10",
-  "theme_color": "#0b0d10",
+  "background_color": "#0b0e13",
+  "theme_color": "#0b0e13",
   "icons": []
 }

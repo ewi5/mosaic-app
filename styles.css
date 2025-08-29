@@ -1,0 +1,121 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  display: flex;
+  background: #0b0f19;
+  color: white;
+  overflow: hidden;
+  height: 100vh;
+}
+
+#sky {
+  flex: 1;
+  background: radial-gradient(circle at top left, #0b0f19, #000);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1rem;
+  position: relative;
+}
+
+#header {
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+#building {
+  flex: 2;
+  overflow-y: scroll;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.window {
+  background: #111827;
+  border-radius: 1rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+}
+
+.avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-transform: lowercase;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.name {
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.days {
+  font-size: 0.8rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.8;
+}
+
+.buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.knock {
+  background: #111;
+  color: white;
+  border: none;
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+.pol {
+  background: linear-gradient(135deg, #ec4899, #8b5cf6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  box-shadow: 0 0 10px rgba(236,72,153,0.6);
+}
+
+#joystick {
+  position: absolute;
+  bottom: 2rem;
+  left: 1rem;
+  width: 70px;
+  height: 70px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+}
+
+#joystick .stick {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: white;
+}
