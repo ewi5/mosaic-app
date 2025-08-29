@@ -1,34 +1,38 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Mosaic</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>mosaic</title>
   <link rel="manifest" href="site.webmanifest">
-  <meta name="theme-color" content="#0b0e13">
+  <link rel="preconnect" href="https://api.open-meteo.com">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div id="app">
-    <!-- LEFT: static sky panel -->
-    <aside class="sky" aria-label="location-and-weather">
-      <div class="sky-inner">
-        <div id="city" class="meta-line">📍 <span>locating…</span></div>
-        <div id="wx" class="meta-line"><span>—°</span> • <span id="wind">wind —</span></div>
-        <div id="clock" class="meta-line">--:--</div>
+    <!-- LEFT SKY PANEL (sticky/static) -->
+    <aside class="sky">
+      <div class="brand">mosaic</div>
+      <div id="hud">
+        <div class="row">
+          <span class="pin">📍</span>
+          <span id="coords">--,--</span>
+        </div>
+        <div class="row"><span id="temp">--°</span> <span class="dot">•</span> <span id="wind">wind --</span></div>
+        <div class="row" id="clock">--:--</div>
       </div>
-      <div id="stick" aria-hidden="true">
-        <div class="ring"></div>
+      <canvas id="stars" width="320" height="800" aria-hidden="true"></canvas>
+      <div id="joystick" aria-label="joystick">
         <div class="nub"></div>
       </div>
     </aside>
 
-    <!-- RIGHT: building that scrolls -->
-    <main class="building" id="building" aria-label="your-people">
-      <div id="windows" class="windows"></div>
+    <!-- RIGHT BUILDING (scrolls) -->
+    <main id="building" class="grid">
+      <!-- cards injected by JS -->
     </main>
   </div>
 
-  <script defer src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
