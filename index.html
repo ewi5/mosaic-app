@@ -1,25 +1,26 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>mosaic</title>
+  <title>Mosaic — building v12</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- Fixed left sky column -->
-  <aside class="sky">
-    <h1 class="logo">mosaic</h1>
-    <div id="skyLine" class="sky-line">📍 <span id="city">loading…</span> • <span id="temp">--</span>° • <span id="time">--:--</span></div>
-    <p class="caption">live prototype — connected via GitHub → Netlify</p>
-    <div class="joycon"><div class="nub"></div></div>
+  <aside class="sky" id="sky">
+    <h1 class="brand">mosaic</h1>
+    <div class="skyline">
+      <div class="line" id="city">—</div>
+      <div class="line" id="temp">—</div>
+      <div class="line" id="time">—</div>
+    </div>
+    <div class="note">live prototype — connected via GitHub → Netlify</div>
+    <button class="stick" id="stick" aria-label="joystick"></button>
   </aside>
 
-  <!-- Scrollable building area -->
   <main class="building-wrap">
-    <!-- fixed frame outlines that do not move -->
-    <div class="building-frame" aria-hidden="true"></div>
-    <section id="grid" class="grid" aria-label="your people"></section>
+    <div class="building-bg"></div>
+    <section class="building" id="grid"></section>
   </main>
 
   <script src="script.js"></script>

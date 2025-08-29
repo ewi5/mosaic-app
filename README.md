@@ -1,20 +1,23 @@
-# Mosaic — building UI (v16)
+# Mosaic — Building UI (v12)
 
-**What this build locks:**  
-- Left sky column is **10% thinner** (24vw), fixed, and never scrolls.  
-- Right side has a **fixed opaque building frame** (pane fill + grid lines).  
-- The people area is a **strict 3‑column grid** at all sizes; no horizontal play.  
-- Cards are opaque (no liquid glass), with Apple‑style initials + POL circle.  
-- Sky bar shows **city • temp° • time** (no wind). Location uses one-time cached permission.
+Stable demo: fixed left sky, opaque building on right with a strict 3-column grid.
+
+## What’s in here
+- **Static left sky (never scrolls):** shows `city • temp° • time`. No coords, no wind. Location persists in `localStorage` to avoid repeated prompts.
+- **Opaque building outline (fixed):** subtle column guides, does not move. Only the **grid** scrolls vertically.
+- **3-column grid always:** fixed `--card-w` so there are *always* three columns on any screen wide enough for the layout.
+- **Apple‑style avatar circles:** deterministic colors from name hash; initials are lowercase first+last (or doubled first letter for single names).
+- **POL** is the round button, **knock** is the black pill.
+- **Joystick**: opaque, simple; positioned up 5% vs earlier.
 
 ## Files
-- `index.html` — markup for fixed sky + scrollable building, plus fixed frame overlay.  
-- `style.css` — tokens, fixed left width, `building-frame` outlines, 3‑column grid, cards.  
-- `script.js` — demo contacts; rendering; cached geolocation; city/temp/time.  
-- `README.md` — this file.
+- `index.html` — layout
+- `style.css` — theme + fixed layout rules
+- `script.js` — data + city/temp/time + grid builder
+- `assets/` — (empty placeholder for future art)
 
-## Notes
-- The fixed frame uses CSS gradients to draw vertical thirds and soft horizontal rows.  
-- `--left-w` is set to `24vw`. Tweak once and both the frame and content stay aligned.  
-- `overflow-x: hidden` is applied globally and the grid uses `overflow-x: clip` to eliminate any sideways scrolling.  
-- Replace the temperature/demo reverse geocode with your API of choice when ready.
+## Deploy
+Drop the folder contents to Netlify (or any static host). No build step.
+
+## Version
+mosaic-building-ui-v12-20250829-eli

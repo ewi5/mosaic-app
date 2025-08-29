@@ -1,85 +1,109 @@
-// demo contacts (first + last; initials auto -> lowercase two letters)
+// --- Demo contacts (fake data) ---
 const contacts = [
-  { name: "viv", days: 8, color: "#EAB308" },
-  { name: "mom", days: 7, color: "#34D399" },
-  { name: "dad", days: 7, color: "#A78BFA" },
-  { name: "sis", days: 2, color: "#F59E0B" },
-  { name: "bro", days: 5, color: "#9CA3AF" },
-  { name: "gabe", days: 6, color: "#22C55E" },
-  { name: "nina", days: 8, color: "#60A5FA" },
-  { name: "ryan", days: 8, color: "#F87171" },
-  { name: "kai", days: 6, color: "#F472B6" }
+  { name: "viv",   days: 8 },
+  { name: "mom",   days: 7 },
+  { name: "dad",   days: 7 },
+  { name: "sis",   days: 2 },
+  { name: "bro",   days: 5 },
+  { name: "gabe",  days: 6 },
+  { name: "lang",  days: 3 },
+  { name: "nina",  days: 8 },
+  { name: "ryan",  days: 8 },
+  { name: "kai",   days: 6 },
+  { name: "helen", days: 4 },
+  { name: "tulio", days: 7 }
 ];
 
-// Apple-ish auto color map if color is missing
-function colorFor(name){
-  if (!name) return "#64748B";
-  const palette = ["#F59E0B","#10B981","#3B82F6","#A78BFA","#F472B6","#22C55E","#EAB308","#F97316","#60A5FA","#D946EF"];
-  let sum = 0; for (let c of name) sum += c.charCodeAt(0);
-  return palette[sum % palette.length];
+// consistent "Apple-like" avatar color: hash name -> 0..10 bucket
+const hueBucket = s => {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return h % 11; // 11 hues defined in CSS
+};
+
+function initials(name){
+  const parts = name.trim().toLowerCase().split(/\s+/);
+  if (parts.length === 1) {
+    // first + last initial not available, double first letter
+    return (parts[0][0] || "").repeat(2);
+  }
+  return (parts[0][0] + parts[1][0]);
 }
 
-// Render grid (always 3 columns via CSS)
-const grid = document.querySelector("#grid");
-contacts.forEach(c => {
-  const el = document.createElement("article");
-  el.className = "card";
-  const initials = (c.name.slice(0,2)).toLowerCase();
-  const bg = c.color || colorFor(c.name);
-  el.innerHTML = `
-    <div class="row">
-      <div class="avatar" style="background:${bg}">${initials}</div>
-      <div class="meta">
+// Build the grid — ALWAYS 3 columns (CSS enforces fixed card width)
+const grid = document.getElementById("grid");
+grid.innerHTML = contacts.map(c => {
+  const ini = initials(c.name);
+  const hue = hueBucket(c.name);
+  return `
+    <article class="card">
+      <div class="row">
+        <div class="avatar" data-hue="${hue}">${ini}</div>
         <div class="name">${c.name}</div>
+        <div style="margin-left:auto;color:#9aa7b2;font-weight:700">${c.days}d</div>
       </div>
-      <div style="margin-left:auto; color:#8b95a6; font-weight:700">${c.days}d</div>
-    </div>
-    <div class="days">days since pol: ${c.days}</div>
-    <div class="controls">
-      <button class="pill">knock</button>
-      <button class="pol">pol</button>
-    </div>
+      <div class="days">days since pol: ${c.days}</div>
+      <div class="actions">
+        <button class="pill">knock</button>
+        <button class="pol" title="proof of life"></button>
+      </div>
+    </article>
   `;
-  grid.appendChild(el);
-});
+}).join("");
 
-/* Sky bar: city • temp • time (no wind; left column stays fixed) */
-(async function sky(){
-  const timeEl = document.querySelector("#time");
-  const cityEl = document.querySelector("#city");
-  const tempEl = document.querySelector("#temp");
+// ---- Left sky: city • temp° • time (no wind, no coords) ----
 
-  function tick(){
-    const now = new Date();
-    const hh = String(now.getHours()).padStart(2,'0');
-    const mm = String(now.getMinutes()).padStart(2,'0');
-    timeEl.textContent = `${hh}:${mm}`;
-  }
-  setInterval(tick, 1000*15); tick();
+// Persisted location so we don't nag each visit
+const LS_KEY = "mosaic:geo";
+const saved = JSON.parse(localStorage.getItem(LS_KEY) || "null");
 
-  // get location once and cache so it doesn't re-ask constantly
-  try{
-    const cache = localStorage.getItem("geoCache");
-    let posObj = cache ? JSON.parse(cache) : null;
-    if(!posObj){
-      const pos = await new Promise((res, rej)=>navigator.geolocation.getCurrentPosition(res, rej, {maximumAge: 3600000, timeout: 8000}));
-      posObj = {lat: pos.coords.latitude, lon: pos.coords.longitude, t: Date.now()};
-      localStorage.setItem("geoCache", JSON.stringify(posObj));
-    }
-    // reverse geocode via static list fallback (no external calls here)
-    cityEl.textContent = approximateCity(posObj.lat, posObj.lon);
-    // fake temperature for demo (replace with API when keys are ready)
-    tempEl.textContent = Math.round(18 + Math.sin(Date.now()/3600000)*4);
-  }catch(e){
-    cityEl.textContent = "your city";
-    tempEl.textContent = "18";
-  }
-})();
-
-// Very coarse reverse geocode without external API (demo-only)
-function approximateCity(lat, lon){
-  if(lat==null || lon==null) return "your city";
-  // quick bounds check for LA-ish as your screenshots suggest
-  if(lat>33 && lat<35 && lon>-119.5 && lon<-117) return "los angeles";
-  return "your city";
+async function getPosition(){
+  if (saved && saved.coords) return saved.coords;
+  return new Promise((resolve, reject)=>{
+    navigator.geolocation.getCurrentPosition(
+      (pos)=>{
+        const coords = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+        localStorage.setItem(LS_KEY, JSON.stringify({coords}));
+        resolve(coords);
+      },
+      (err)=>{
+        // fallback to LA if denied
+        resolve({ lat: 34.05, lon: -118.24 });
+      },
+      { enableHighAccuracy:true, timeout: 6000 }
+    );
+  });
 }
+
+function formatTime(d){
+  const hh = String(d.getHours()).padStart(2,"0");
+  const mm = String(d.getMinutes()).padStart(2,"0");
+  return `${hh}:${mm}`;
+}
+
+async function loadSky(){
+  const {lat, lon} = await getPosition();
+
+  // Reverse geocode -> city
+  const cityPromise = fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=10`)
+    .then(r=>r.json()).then(j=>{
+      return j.address.city || j.address.town || j.address.village || j.address.county || "your city";
+    }).catch(()=> "your city");
+
+  // Weather temp (°C) from Open-Meteo
+  const weatherPromise = fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m&timezone=auto`)
+    .then(r=>r.json()).then(j=>Math.round(j.current.temperature_2m))
+    .catch(()=>"—");
+
+  const [city, temp] = await Promise.all([cityPromise, weatherPromise]);
+  document.getElementById("city").textContent = `📍 ${city}`;
+  document.getElementById("temp").textContent = `${temp}°`;
+  const tick = ()=>{
+    document.getElementById("time").textContent = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  };
+  tick(); setInterval(tick, 1000*30);
+}
+loadSky();
+
+// --- Prevent the left sky from ever scrolling ---
+// Body is overflow:hidden; only .building-wrap scrolls vertically — already enforced.
