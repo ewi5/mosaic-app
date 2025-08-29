@@ -1,29 +1,25 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>mosaic</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- Left SKY is fixed. Never scrolls. -->
-  <aside class="sky" aria-label="location and time">
+  <!-- Fixed left sky column -->
+  <aside class="sky">
     <h1 class="logo">mosaic</h1>
-    <div class="skyline">
-      📍 <span id="city">auto</span> • <span id="temp">—</span>° • <span id="time">--:--</span>
-    </div>
-    <div class="note">live prototype — connected via GitHub → Netlify</div>
-    <div class="stars" aria-hidden="true"></div>
-    <div class="stick" aria-hidden="true"><div class="stick-cap"></div></div>
+    <div id="skyLine" class="sky-line">📍 <span id="city">loading…</span> • <span id="temp">--</span>° • <span id="time">--:--</span></div>
+    <p class="caption">live prototype — connected via GitHub → Netlify</p>
+    <div class="joycon"><div class="nub"></div></div>
   </aside>
 
-  <!-- Right BUILDING scrolls independently -->
-  <main class="building" id="building" aria-label="contacts grid">
-    <div class="grid" id="grid"></div>
+  <!-- Scrollable building area -->
+  <main class="building-wrap">
+    <!-- fixed frame outlines that do not move -->
+    <div class="building-frame" aria-hidden="true"></div>
+    <section id="grid" class="grid" aria-label="your people"></section>
   </main>
 
   <script src="script.js"></script>

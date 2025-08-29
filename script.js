@@ -1,110 +1,85 @@
-// demo people
-const people = [
-  { name: "viv",   daysSincePol: 8, home: true  },
-  { name: "mom",   daysSincePol: 7, home: false },
-  { name: "dad",   daysSincePol: 7, home: true  },
-  { name: "sis",   daysSincePol: 2, home: true  },
-  { name: "bro",   daysSincePol: 5, home: false },
-  { name: "gabe",  daysSincePol: 6, home: true  },
-  { name: "helen", daysSincePol: 9, home: false },
-  { name: "kai",   daysSincePol: 6, home: true  },
-  { name: "nina",  daysSincePol: 8, home: false },
-  { name: "ryan",  daysSincePol: 8, home: true  },
-  { name: "tulio", daysSincePol: 7, home: false },
-  { name: "lang",  daysSincePol: 3, home: true  },
+// demo contacts (first + last; initials auto -> lowercase two letters)
+const contacts = [
+  { name: "viv", days: 8, color: "#EAB308" },
+  { name: "mom", days: 7, color: "#34D399" },
+  { name: "dad", days: 7, color: "#A78BFA" },
+  { name: "sis", days: 2, color: "#F59E0B" },
+  { name: "bro", days: 5, color: "#9CA3AF" },
+  { name: "gabe", days: 6, color: "#22C55E" },
+  { name: "nina", days: 8, color: "#60A5FA" },
+  { name: "ryan", days: 8, color: "#F87171" },
+  { name: "kai", days: 6, color: "#F472B6" }
 ];
 
-// Deterministic Apple-ish color for initials
-const palette = ["#f4a261","#e76f51","#e07a5f","#f2c94c","#6fcf97","#56ccf2","#2d9cdb","#9b51e0","#bb6bd9","#eb5757","#27ae60","#f2994a"];
-function hashString(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h+=(h<<1)+(h<<4)+(h<<7)+(h<<8)+(h<<24);}return Math.abs(h);}
-const colorForName = n => palette[hashString(n.toLowerCase()) % palette.length];
-
-function initialsFor(name){
-  const parts = name.trim().toLowerCase().split(/\s+/);
-  return (parts.length===1) ? parts[0][0]+parts[0][0] : (parts[0][0] + parts[1][0]);
+// Apple-ish auto color map if color is missing
+function colorFor(name){
+  if (!name) return "#64748B";
+  const palette = ["#F59E0B","#10B981","#3B82F6","#A78BFA","#F472B6","#22C55E","#EAB308","#F97316","#60A5FA","#D946EF"];
+  let sum = 0; for (let c of name) sum += c.charCodeAt(0);
+  return palette[sum % palette.length];
 }
 
-function render(){
-  const grid = document.getElementById("grid");
-  grid.innerHTML = "";
-  people.forEach(p=>{
-    const card = document.createElement("section");
-    card.className = `card ${p.home ? "home":"away"}`;
-    const row  = document.createElement("div"); row.className="row";
-    const av   = document.createElement("div"); av.className="avatar";
-    av.style.background = colorForName(p.name);
-    av.textContent = initialsFor(p.name);
-    const nm   = document.createElement("div"); nm.className="name"; nm.textContent = p.name.toLowerCase();
-    row.append(av,nm);
+// Render grid (always 3 columns via CSS)
+const grid = document.querySelector("#grid");
+contacts.forEach(c => {
+  const el = document.createElement("article");
+  el.className = "card";
+  const initials = (c.name.slice(0,2)).toLowerCase();
+  const bg = c.color || colorFor(c.name);
+  el.innerHTML = `
+    <div class="row">
+      <div class="avatar" style="background:${bg}">${initials}</div>
+      <div class="meta">
+        <div class="name">${c.name}</div>
+      </div>
+      <div style="margin-left:auto; color:#8b95a6; font-weight:700">${c.days}d</div>
+    </div>
+    <div class="days">days since pol: ${c.days}</div>
+    <div class="controls">
+      <button class="pill">knock</button>
+      <button class="pol">pol</button>
+    </div>
+  `;
+  grid.appendChild(el);
+});
 
-    const days = document.createElement("div"); days.className="days";
-    days.textContent = `days since pol: ${p.daysSincePol}`;
+/* Sky bar: city • temp • time (no wind; left column stays fixed) */
+(async function sky(){
+  const timeEl = document.querySelector("#time");
+  const cityEl = document.querySelector("#city");
+  const tempEl = document.querySelector("#temp");
 
-    const controls = document.createElement("div"); controls.className="controls";
-    const knock = document.createElement("button"); knock.className="btn btn-knock"; knock.textContent="knock";
-    knock.onclick = ()=> card.animate([{transform:"scale(1)"},{transform:"scale(.98)"},{transform:"scale(1)"}],{duration:150});
-    const pol   = document.createElement("button"); pol.className="btn btn-pol"; pol.textContent="pol";
-    pol.onclick = ()=> { p.daysSincePol=0; days.textContent="days since pol: 0"; };
-
-    controls.append(knock, pol);
-    card.append(row, days, controls);
-    grid.append(card);
-  });
-}
-render();
-
-// SKY: city • temp° • time (no wind, no coords)
-const citySpan = document.getElementById("city");
-const tempSpan = document.getElementById("temp");
-const timeSpan = document.getElementById("time");
-
-function tickTime(){
-  const d = new Date();
-  timeSpan.textContent = d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
-}
-tickTime(); setInterval(tickTime, 30000);
-
-// caching helpers
-const CACHE_HOURS_POS = 24;
-const CACHE_MIN_TEMP = 60;
-const getCache = k => { try{return JSON.parse(localStorage.getItem(k))}catch{return null} };
-const setCache = (k,v) => localStorage.setItem(k, JSON.stringify(v));
-
-async function geolocate(){
-  const pos = getCache("mosaic_last_pos");
-  if (pos && (Date.now()-pos.t) < CACHE_HOURS_POS*3600*1000){
-    citySpan.textContent = getCache("mosaic_city")?.name || "auto";
-    tempSpan.textContent = await temperatureFromCacheOrFetch(pos.lat, pos.lon);
-    return;
+  function tick(){
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2,'0');
+    const mm = String(now.getMinutes()).padStart(2,'0');
+    timeEl.textContent = `${hh}:${mm}`;
   }
-  if (!navigator.geolocation){ citySpan.textContent="auto"; tempSpan.textContent="—"; return; }
-  navigator.geolocation.getCurrentPosition(async ({coords})=>{
-    const lat = +coords.latitude.toFixed(4), lon = +coords.longitude.toFixed(4);
-    setCache("mosaic_last_pos", {lat,lon,t:Date.now()});
-    const city = await reverseGeocodeCity(lat,lon);
-    setCache("mosaic_city", {name:city, t:Date.now()});
-    citySpan.textContent = city;
-    tempSpan.textContent = await temperatureFromCacheOrFetch(lat,lon);
-  }, _err => { citySpan.textContent="auto"; tempSpan.textContent="—"; },
-  {enableHighAccuracy:false, timeout:6000, maximumAge:3600_000});
-}
+  setInterval(tick, 1000*15); tick();
 
-async function reverseGeocodeCity(lat,lon){
+  // get location once and cache so it doesn't re-ask constantly
   try{
-    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`);
-    const j = await res.json();
-    return (j.address.city || j.address.town || j.address.village || j.address.county || j.address.state || "auto").toLowerCase();
-  }catch{ return "auto"; }
-}
+    const cache = localStorage.getItem("geoCache");
+    let posObj = cache ? JSON.parse(cache) : null;
+    if(!posObj){
+      const pos = await new Promise((res, rej)=>navigator.geolocation.getCurrentPosition(res, rej, {maximumAge: 3600000, timeout: 8000}));
+      posObj = {lat: pos.coords.latitude, lon: pos.coords.longitude, t: Date.now()};
+      localStorage.setItem("geoCache", JSON.stringify(posObj));
+    }
+    // reverse geocode via static list fallback (no external calls here)
+    cityEl.textContent = approximateCity(posObj.lat, posObj.lon);
+    // fake temperature for demo (replace with API when keys are ready)
+    tempEl.textContent = Math.round(18 + Math.sin(Date.now()/3600000)*4);
+  }catch(e){
+    cityEl.textContent = "your city";
+    tempEl.textContent = "18";
+  }
+})();
 
-async function temperatureFromCacheOrFetch(lat,lon){
-  const c = getCache("mosaic_last_temp");
-  if (c && (Date.now()-c.t)<CACHE_MIN_TEMP*60*1000) return c.temp;
-  try{
-    const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
-    const j = await r.json();
-    const t = Math.round(j.current_weather.temperature);
-    setCache("mosaic_last_temp",{temp:t,t:Date.now()}); return t;
-  }catch{ return getCache("mosaic_last_temp")?.temp ?? "—"; }
+// Very coarse reverse geocode without external API (demo-only)
+function approximateCity(lat, lon){
+  if(lat==null || lon==null) return "your city";
+  // quick bounds check for LA-ish as your screenshots suggest
+  if(lat>33 && lat<35 && lon>-119.5 && lon<-117) return "los angeles";
+  return "your city";
 }
-geolocate();

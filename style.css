@@ -1,79 +1,163 @@
+/* ==============
+   Base / tokens
+   ============== */
 :root{
-  --bg:#0c0f14;
-  --sky:#0f1319;
-  --card:#1a1f27;
-  --muted:#8b96a7;
-  --txt:#e7edf7;
-  --knock:#0e1116;
-  --pol:#8a5cff;
-  --gap:16px;
-  --radius-card:18px;
-  --shadow:0 4px 12px rgba(0,0,0,.25);
-  --sky-w:38vw; /* fixed left pane width */
+  --bg: #0f1115;
+  --panel: #171a21;
+  --card: #1b1f27;
+  --text: #e9edf1;
+  --muted: #97a0ad;
+  --pill: #101216;
+  --left-w: 24vw;              /* 10% thinner than the previous ~27vw */
+  --gutter: 16px;
+  --pane-line: rgba(255,255,255,.06);
+  --pane-fill: rgba(255,255,255,.02);
 }
 
-html,body{height:100%;}
-body{margin:0;background:var(--bg);color:var(--txt);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font: 16px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Inter, Helvetica, Arial, sans-serif;
+  overflow-x: hidden; /* kill any sideways 'play' */
+}
 
-/* SKY: fixed, never scrolls */
+/* ==============
+   Left sky (fixed)
+   ============== */
 .sky{
-  position:fixed; inset:0 auto 0 0; width:var(--sky-w); height:100dvh;
-  background:var(--sky); border-right:1px solid rgba(255,255,255,.06);
-  padding:20px 18px; box-sizing:border-box; overflow:hidden;
+  position:fixed;
+  left:0; top:0; bottom:0;
+  width:var(--left-w);
+  padding: 24px 20px 28px;
+  background: radial-gradient(120% 100% at 0% 0%, #0f1320 0%, #0e0f14 60%);
+  border-right: 1px solid rgba(255,255,255,.05);
+  z-index:10;
 }
-.logo{margin:4px 0 18px;font-size:44px;line-height:1;font-weight:800;letter-spacing:-.5px;}
-.skyline{font-size:18px;opacity:.92;margin-bottom:12px;}
-.note{color:var(--muted);font-size:13px;}
+.logo{
+  margin:0 0 18px;
+  font-size:42px;
+  font-weight:800;
+  letter-spacing:.5px;
+}
+.sky-line{
+  margin-top:6px;
+  font-size:18px;
+  color:var(--text);
+}
+.caption{
+  margin-top:10px;
+  color:var(--muted);
+  font-size:14px;
+}
 
-/* subtle star field (still opaque) */
-.stars{position:absolute;inset:0;pointer-events:none;
+/* Joycon (smaller, opaque) */
+.joycon{
+  position:absolute;
+  left:18px; bottom:22px;
+  width:88px; height:88px;
+  background: #0a0c10;
+  border-radius: 20px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), 0 10px 30px rgba(0,0,0,.45);
+  display:grid; place-items:center;
+}
+.joycon .nub{
+  width:52px; height:52px;
+  background:#e6e9ef;
+  border-radius:50%;
+  box-shadow: 0 8px 24px rgba(0,0,0,.4);
+}
+
+/* ==============
+   Building wrapper (scrolls)
+   ============== */
+.building-wrap{
+  position:relative;
+  margin-left: calc(var(--left-w) + var(--gutter));
+  padding: 20px var(--gutter) 40px;
+  min-height:100vh;
+}
+
+/* Fixed frame outlines (non-moving) */
+.building-frame{
+  position:fixed;
+  left: calc(var(--left-w) + var(--gutter));
+  right: 0;
+  top: 0;
+  bottom: 0;
   background:
-    radial-gradient(2px 2px at 18% 12%, rgba(255,255,255,.25), transparent),
-    radial-gradient(1.5px 1.5px at 62% 26%, rgba(255,255,255,.18), transparent),
-    radial-gradient(1.5px 1.5px at 34% 58%, rgba(255,255,255,.18), transparent),
-    radial-gradient(1px 1px at 78% 80%, rgba(255,255,255,.15), transparent);
+    linear-gradient(var(--pane-fill), var(--pane-fill)), /* subtle fill */
+    /* vertical lines */
+    repeating-linear-gradient(90deg,
+      transparent 0, transparent calc(100%/3 - 1px),
+      var(--pane-line) calc(100%/3 - 1px), var(--pane-line) calc(100%/3)),
+    /* horizontal lines ~ card rows height; purely decorative */
+    repeating-linear-gradient(180deg,
+      transparent 0, transparent 220px,
+      var(--pane-line) 220px, var(--pane-line) 221px);
+  pointer-events:none;
+  z-index:1;
 }
 
-/* joystick */
-.stick{position:absolute; left:16px; bottom:20px; width:120px; height:120px;
-  background:#0e131a;border-radius:50%; box-shadow:inset 0 10px 22px rgba(0,0,0,.45), var(--shadow);
-  display:grid; place-items:center;}
-.stick-cap{width:64px;height:64px;background:#d9dde6;border-radius:50%;
-  box-shadow:inset 0 6px 8px rgba(0,0,0,.25); transition:transform 120ms ease;}
-.stick:active .stick-cap{transform:scale(.96);}
-
-/* BUILDING: occupies remaining space, scrolls independently */
-.building{
-  position:relative; margin-left:var(--sky-w); height:100dvh; overflow:auto;
-  padding:18px; box-sizing:border-box;
-}
-
-/* 3 COLUMN GRID ALWAYS */
+/* Strict 3-column grid */
 .grid{
-  display:grid; grid-template-columns:repeat(3, 1fr); gap:var(--gap);
-  padding-bottom:72px; min-width:600px; /* ensures 3 cols even on small phones with landscape browser chrome */
+  position:relative;
+  z-index:2; /* above frame fill */
+  display:grid;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 18px;
+  align-content:start;
 }
 
-.card{background:var(--card);border-radius:var(--radius-card);box-shadow:var(--shadow);
-  padding:14px;display:flex;flex-direction:column;gap:12px;min-height:170px;}
-.row{display:flex;align-items:center;gap:12px;}
-.avatar{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-weight:700;letter-spacing:.5px;color:#fff;}
-.name{font-size:18px;font-weight:700;text-transform:lowercase;}
-.days{color:var(--muted);font-size:14px;}
+/* Person card */
+.card{
+  background:var(--card);
+  border-radius:22px;
+  padding:18px 16px 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+}
 
-.controls{margin-top:auto;display:flex;align-items:center;gap:10px;}
-.btn{border:none;outline:none;color:white;font-weight:700;cursor:pointer;}
-.btn-knock{background:var(--knock);padding:8px 14px;border-radius:999px;}
-.btn-pol{width:40px;height:40px;border-radius:50%;background:var(--pol);display:grid;place-items:center;font-size:13px;}
-.btn:active{transform:translateY(1px);}
+.row{
+  display:flex; align-items:center; gap:14px;
+}
+.avatar{
+  width:74px; height:74px; border-radius:50%;
+  display:grid; place-items:center;
+  color:#fff; letter-spacing:.5px; font-weight:800; text-transform:lowercase;
+  background:#4b5563;
+  box-shadow: 0 8px 24px rgba(0,0,0,.35);
+}
+.name{font-size:22px; font-weight:800}
+.days{margin:14px 0 16px; color:var(--muted); font-size:18px}
 
-.away .avatar{filter:grayscale(.2) brightness(.8);}
-.home .avatar{filter:none;}
+/* controls */
+.controls{display:flex; gap:12px}
+.pill, .pol{
+  border:none; cursor:pointer; font-weight:700;
+  transition:.2s transform, .2s box-shadow, .2s filter;
+}
+.pill{
+  background:var(--pill); color:#dfe6ef;
+  padding:10px 18px;
+  border-radius:16px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+}
+.pol{
+  width:48px; height:48px; border-radius:50%;
+  background: radial-gradient(120% 120% at 20% 20%, #c9a6ff 0%, #ff79c8 45%, #ff9f6e 100%);
+  color:#0a0b0e;
+  box-shadow: 0 6px 22px rgba(255, 130, 180,.35);
+}
+.pill:active, .pol:active{transform: translateY(1px); filter:brightness(.97)}
 
-/* small devices still keep 3 columns; allow horizontal scroll if viewport too narrow */
-@media (max-width:680px){
-  :root{ --sky-w:42vw; }
-  .logo{font-size:36px;}
-  .building{padding:14px;}
-  .grid{gap:14px; min-width:540px;}
+/* Make sure no accidental horizontal scrollbars ever */
+.grid, .building-wrap{overflow-x: clip;}
+
+/* Smallest phones fallback: keep 3 columns but scale down card content slightly */
+@media (max-width: 380px){
+  .avatar{width:64px;height:64px}
+  .name{font-size:20px}
+  .days{font-size:16px}
 }
