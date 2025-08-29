@@ -3,28 +3,27 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>mosaic</title>
+  <title>Mosaic</title>
+  <link rel="preconnect" href="https://geocoding-api.open-meteo.com">
+  <link rel="preconnect" href="https://api.open-meteo.com">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="app">
-    <!-- LEFT SKY (static) -->
-    <aside id="sky">
-      <div id="meta">
-        <span id="city">—</span>
-        <span id="wx">—</span>
-        <span id="time">—</span>
-      </div>
-      <div id="joy" class="joy">
+  <main id="app">
+    <section id="sky">
+      <h1 class="brand">mosaic</h1>
+      <div id="metabar">📍 locating…</div>
+      <div id="note">live prototype — connected via GitHub → Netlify</div>
+      <div id="stars" aria-hidden="true"></div>
+      <div class="joycon" aria-hidden="true">
         <div class="nub"></div>
       </div>
-    </aside>
+    </section>
 
-    <!-- RIGHT BUILDING (only this scrolls) -->
-    <main id="building">
-      <section id="grid" class="grid" aria-label="windows"></section>
-    </main>
-  </div>
+    <section id="building">
+      <div id="grid" class="grid"></div>
+    </section>
+  </main>
 
   <script src="script.js"></script>
 </body>
