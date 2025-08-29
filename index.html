@@ -1,0 +1,250 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mosiac — knock wheel prototype</title>
+<style>
+  :root{
+    --tower:#16171c; --window:#1b1e25; --lit:#232734;
+    --text:#e9ecf1; --sub:#a8b0bf;
+    --grad-1:#F58529; --grad-2:#DD2A7B; --grad-3:#8134AF; --grad-4:#515BD4;
+    --good:#b3ffd6; --okay:#d9ffb3; --dry:#ffe8b3; --uh:#ffd1d1;
+    --glass: rgba(17,18,20,.5);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;font-family:ui-sans-serif,-apple-system,system-ui}
+  body{display:flex}
+  .sky{width:120px; position:relative; transition:background 600ms linear; display:flex; align-items:flex-end; justify-content:center;}
+  .joycon{width:70px;height:70px;border-radius:999px;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,0.95),rgba(220,220,220,0.85));
+    border:2px solid rgba(0,0,0,.35); margin-bottom:42px; margin-right:-22px;
+    box-shadow:0 10px 18px rgba(0,0,0,.45), 0 0 20px rgba(255,255,255,.25) inset; opacity:0.85; animation:floaty 4s ease-in-out infinite;}
+  @keyframes floaty{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(0)}}
+
+  .wx{position:absolute; inset:0; overflow:hidden; pointer-events:none}
+  .cloud{position:absolute; top:10%; width:90px; height:38px; background:rgba(255,255,255,.85);
+         border-radius:40px; filter:blur(0.3px); animation:cloudmove 28s linear infinite;}
+  .cloud:before,.cloud:after{content:""; position:absolute; background:inherit; width:56px; height:56px; border-radius:50%}
+  .cloud:before{left:14px; top:-22px}
+  .cloud:after{left:38px; top:-10px}
+  @keyframes cloudmove{ from{transform:translateX(-120px)} to{transform:translateX(140px)} }
+  .rain{position:absolute; inset:0; background:repeating-linear-gradient( to bottom,
+        rgba(255,255,255,.0) 0px, rgba(255,255,255,.0) 16px,
+        rgba(255,255,255,.5) 17px, rgba(255,255,255,.5) 18px);
+        transform:skewX(-10deg); opacity:.45; animation:raindrift 1.2s linear infinite;}
+  @keyframes raindrift{ from{background-position:0 0} to{background-position:0 40px} }
+  .snowflake{position:absolute; top:-10px; width:6px; height:6px; background:rgba(255,255,255,.9); border-radius:50%; animation:snow 6s linear infinite;}
+  @keyframes snow{0%{ transform:translateY(-10px) translateX(0) scale(1) } 50%{ transform:translateY(60vh) translateX(-6px) scale(0.95) } 100%{ transform:translateY(120vh) translateX(6px) scale(0.9) } }
+  .stars{position:absolute; inset:0; background:transparent}
+  .star{ position:absolute; width:2px; height:2px; background:rgba(255,255,255,.9); border-radius:50%; opacity:.7; animation:twinkle 2.2s ease-in-out infinite; }
+  @keyframes twinkle{ 0%,100%{opacity:.2} 50%{opacity:1} }
+  .wx-indicator{ position:absolute; top:8px; left:8px; padding:4px 8px; border-radius:999px; background:rgba(0,0,0,.25); color:#fff; font-size:11px; font-weight:800; backdrop-filter:blur(6px); pointer-events:auto; cursor:pointer; }
+
+  .tower-wrap{flex:1;overflow-y:auto;height:100%;scroll-snap-type:y mandatory;background:#0b0c10}
+  .tower{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px;scroll-snap-align:start}
+  @media(min-width:860px){ .tower{grid-template-columns:repeat(5,1fr);} }
+  .window{height:140px;border-radius:12px;background:var(--window);
+    border:1px solid #232633; position:relative; overflow:hidden;
+    display:flex; flex-direction:column; justify-content:space-between; cursor:pointer;}
+  .lit{background:var(--lit)}
+  .pane{padding:10px;display:flex;align-items:center;gap:10px}
+  .avatar{width:36px;height:36px;border-radius:999px;background:#2b3140;display:grid;place-items:center;font-weight:900;color:#fff}
+  .name{font-weight:800;color:var(--text)}
+  .days{font-size:12px;color:var(--sub);margin-left:auto}
+  .btns{display:flex;gap:6px;padding:10px}
+  .btn{flex:1;display:grid;place-items:center;border-radius:999px;padding:8px 0;font-weight:800;cursor:pointer;
+    border:1px solid #2a2f3b;color:#e4e8f3;background:#1d2029;font-size:12px;}
+  .btn.grad{border-color:transparent;background:linear-gradient(135deg,var(--grad-1),var(--grad-2),var(--grad-3),var(--grad-4));}
+  .ring{position:absolute;inset:-2px;border-radius:12px;pointer-events:none}
+  .foot{font-size:11px;color:#98a2b6;padding:0 10px 8px}
+
+  /* overlay for knock flow */
+  .overlay{position:fixed; inset:0; background:rgba(0,0,0,.3); backdrop-filter:blur(6px); display:none; align-items:center; justify-content:center; z-index:50}
+  .sheet{background:var(--glass); border:1px solid rgba(255,255,255,.12); border-radius:18px; padding:14px; width:min(520px,92vw); color:#fff; box-shadow:0 20px 60px rgba(0,0,0,.45)}
+  .row{display:flex; align-items:center; gap:10px}
+  .sheet .who{font-weight:900}
+  .knock-btn{margin-left:auto; border:none; padding:10px 14px; border-radius:999px; font-weight:900; color:#111; background:#fff; cursor:pointer}
+  .wheel-wrap{position:relative; height:320px; display:grid; place-items:center; margin-top:10px}
+  .wheel-base{position:absolute; width:240px; height:240px; border-radius:50%; background:rgba(255,255,255,.06); border:1px dashed rgba(255,255,255,.18)}
+  .wheel-center{position:absolute; width:110px; height:110px; border-radius:50%; background:linear-gradient(135deg,var(--grad-1),var(--grad-2),var(--grad-3),var(--grad-4)); display:grid; place-items:center; font-weight:900}
+  .slice{position:absolute; width:120px; height:36px; display:grid; place-items:center; border-radius:999px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.16); cursor:pointer; backdrop-filter:blur(4px); font-weight:800}
+  .slice:hover{background:rgba(255,255,255,.2)}
+  .toggle{display:flex; gap:8px; align-items:center; justify-content:center; margin-top:8px; font-size:12px; color:#d6d9e6}
+  .toggle input{width:36px; height:20px}
+  .actions{display:flex; gap:8px; justify-content:flex-end; margin-top:10px}
+  .ghost{background:transparent; border:1px solid rgba(255,255,255,.2); color:#fff}
+  .primary{background:#fff; color:#111; border:none}
+  .toast{position:fixed; left:50%; bottom:18px; transform:translateX(-50%); background:rgba(0,0,0,.68); color:#fff; padding:10px 14px; border-radius:12px; font-weight:800; z-index:60}
+</style>
+</head>
+<body>
+  <div class="sky" id="sky">
+    <div class="wx" id="wx"></div>
+    <div class="joycon"></div>
+    <div class="wx-indicator" id="wxToggle" title="tap to change weather">auto</div>
+  </div>
+
+  <div class="tower-wrap" id="towerWrap"></div>
+
+  <!-- knock overlay -->
+  <div class="overlay" id="overlay">
+    <div class="sheet">
+      <div class="row">
+        <div class="who" id="who">knock: —</div>
+        <button class="knock-btn" id="knockNow">knock</button>
+      </div>
+
+      <div class="wheel-wrap">
+        <div class="wheel-base"></div>
+        <div class="wheel-center">choose</div>
+
+        <!-- 4 slices placed around a circle -->
+        <div class="slice" data-key="hang" style="top:30px; left:50%; transform:translateX(-50%)">to hang out</div>
+        <div class="slice" data-key="alive" style="bottom:30px; left:50%; transform:translateX(-50%)">to make sure you’re alive</div>
+        <div class="slice" data-key="miss" style="top:50%; left:24px; transform:translateY(-50%)">because i miss you</div>
+        <div class="slice" data-key="custom" style="top:50%; right:24px; transform:translateY(-50%)">custom…</div>
+      </div>
+
+      <div class="toggle">
+        <label><input type="checkbox" id="twoWay"> make this two-way</label>
+      </div>
+
+      <div class="actions">
+        <button class="ghost" id="cancel">cancel</button>
+        <button class="primary" id="send">send</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+// --- content
+const now=()=>Math.floor(Date.now()/1000);
+const randD=()=>Math.floor(Math.random()*9);
+const users=[
+  {id:"eli",name:"eli"},{id:"jess",name:"jess"},{id:"dan",name:"dan"},
+  {id:"viv",name:"viv"},{id:"mom",name:"mom"},{id:"dad",name:"dad"},
+  {id:"sis",name:"sis"},{id:"bro",name:"bro"},{id:"gabe",name:"gabe"},
+  {id:"lang",name:"lang"},{id:"helen",name:"helen"},{id:"tulio",name:"tulio"},
+  {id:"nina",name:"nina"},{id:"ryan",name:"ryan"},{id:"kai",name:"kai"}
+];
+const proofs={}; users.forEach(u=>proofs[u.id]=now()-(randD()*86400+Math.floor(Math.random()*36000)));
+const ring=secs=>{const d=Math.floor((now()-secs)/86400);
+  if(d<=1)return "#b3ffd6"; if(d<=3)return "#d9ffb3"; if(d<=6)return "#ffe8b3"; return "#ffd1d1"};
+const fmt=secs=>{const diff=Math.max(0,now()-secs);const d=Math.floor(diff/86400);
+  if(d>=1)return d+"d"; const h=Math.floor(diff/3600); if(h>=1)return h+"h"; const m=Math.floor(diff/60);
+  if(m>=1)return m+"m"; return "now"};
+
+function makeWindow(u){
+  const w=document.createElement("div");w.className="window lit";
+  const top=document.createElement("div");top.className="pane";
+  const ava=document.createElement("div");ava.className="avatar";ava.textContent=u.name[0].toUpperCase();
+  const nm=document.createElement("div");nm.className="name";nm.textContent=u.name;
+  const dy=document.createElement("div");dy.className="days";dy.textContent=fmt(proofs[u.id]);
+  top.appendChild(ava);top.appendChild(nm);top.appendChild(dy);
+  const ringEl=document.createElement("div");ringEl.className="ring";ringEl.style.boxShadow="inset 0 0 0 2px "+ring(proofs[u.id]);
+
+  const btns=document.createElement("div");btns.className="btns";
+  const knock=document.createElement("div");knock.className="btn";knock.textContent="knock";
+  const prove=document.createElement("div");prove.className="btn grad";prove.textContent="prove";
+  prove.onclick=()=>{proofs[u.id]=now();dy.textContent=fmt(proofs[u.id]);ringEl.style.boxShadow="inset 0 0 0 2px "+ring(proofs[u.id]);};
+
+  // open overlay on knock
+  knock.onclick=()=>openKnock(u);
+
+  btns.appendChild(knock);btns.appendChild(prove);
+  const foot=document.createElement("div");foot.className="foot";foot.textContent="ring = days since proof";
+  w.appendChild(top);w.appendChild(btns);w.appendChild(foot);w.appendChild(ringEl);
+  return w;
+}
+
+const towerWrap=document.getElementById("towerWrap");
+for(let f=0;f<6;f++){
+  const floor=document.createElement("div");floor.className="tower";
+  users.slice(f*3,f*3+15).forEach(u=>{floor.appendChild(makeWindow(u));});
+  towerWrap.appendChild(floor);
+}
+
+// --- sky + weather (same as earlier) ---
+const sky = document.getElementById("sky");
+const wx = document.getElementById("wx");
+const wxToggle = document.getElementById("wxToggle");
+const MODES = ["auto","clear","cloudy","rain","snow"];
+let modeIndex = 0;
+
+function setSkyGradient(){
+  const h=new Date().getHours();
+  const isDay = h>=6 && h<18;
+  if(isDay){
+    sky.style.background="linear-gradient(180deg,#9fd4ff 0%,#78b8f9 50%,#4a6fb1 100%)";
+  } else {
+    sky.style.background="linear-gradient(180deg,#0b0c10 0%,#0f1116 100%)";
+  }
+  return isDay;
+}
+function clearLayers(){ wx.innerHTML=""; }
+function addClouds(){ for(let i=0;i<4;i++){ const c=document.createElement("div"); c.className="cloud"; c.style.top=(6+i*18)+"%"; c.style.animationDelay=(-i*6)+"s"; c.style.opacity=0.7-i*0.1; wx.appendChild(c);} }
+function addRain(){ const r=document.createElement("div"); r.className="rain"; wx.appendChild(r); }
+function addSnow(){ for(let i=0;i<12;i++){ const s=document.createElement("div"); s.className="snowflake"; s.style.left=(Math.random()*100)+"%"; s.style.animationDelay=(Math.random()*4)+"s"; s.style.opacity=(0.7+Math.random()*0.3).toFixed(2); wx.appendChild(s);} }
+function addStars(){ const container=document.createElement("div"); container.className="stars"; for(let i=0;i<28;i++){ const s=document.createElement("div"); s.className="star"; s.style.left=(Math.random()*100)+"%"; s.style.top=(Math.random()*100)+"%"; s.style.animationDelay=(Math.random()*2)+"s"; container.appendChild(s);} wx.appendChild(container); }
+function applyWeather(){
+  clearLayers();
+  const currentMode = MODES[modeIndex];
+  const isDay = setSkyGradient();
+  wxToggle.textContent = currentMode;
+  if(currentMode==="auto"){ if(isDay){ if (new Date().getMinutes()%2===0) addClouds(); } else { addStars(); if (new Date().getMinutes()%3===0) addClouds(); } }
+  else if(currentMode==="clear"){ if(!isDay) addStars(); }
+  else if(currentMode==="cloudy"){ addClouds(); if(!isDay) addStars(); }
+  else if(currentMode==="rain"){ addClouds(); addRain(); }
+  else if(currentMode==="snow"){ addClouds(); addSnow(); }
+}
+wxToggle.addEventListener("click", ()=>{ modeIndex=(modeIndex+1)%MODES.length; applyWeather(); });
+applyWeather(); setInterval(applyWeather,60000);
+
+// --- knock overlay logic ---
+const overlay = document.getElementById("overlay");
+const who = document.getElementById("who");
+const twoWay = document.getElementById("twoWay");
+const cancelBtn = document.getElementById("cancel");
+const sendBtn = document.getElementById("send");
+const knockNowBtn = document.getElementById("knockNow");
+let currentTarget = null;
+let selectedKey = null;
+
+function openKnock(u){
+  currentTarget = u;
+  selectedKey = null;
+  who.textContent = "knock: " + u.name;
+  twoWay.checked = false;
+  // reset slice selection styles
+  document.querySelectorAll(".slice").forEach(s => s.style.outline = "1px solid rgba(255,255,255,.18)");
+  overlay.style.display = "flex";
+}
+
+function closeKnock(){ overlay.style.display = "none"; }
+
+document.querySelectorAll(".slice").forEach(s => {
+  s.addEventListener("click", () => {
+    selectedKey = s.dataset.key;
+    document.querySelectorAll(".slice").forEach(x => x.style.outline = "1px solid rgba(255,255,255,.18)");
+    s.style.outline = "2px solid #fff";
+  });
+});
+
+function toast(t){
+  const el = document.createElement("div"); el.className="toast"; el.textContent=t;
+  document.body.appendChild(el); setTimeout(()=>el.remove(), 1200);
+}
+
+cancelBtn.onclick = closeKnock;
+knockNowBtn.onclick = () => { toast("knock sent to "+(currentTarget?.name || "—")); };
+sendBtn.onclick = () => {
+  const label = selectedKey || "custom";
+  const mode = twoWay.checked ? "two-way" : "one-way";
+  toast(`knock: ${label} • ${mode} → ${(currentTarget?.name||"")}`);
+  closeKnock();
+};
+
+</script>
+</body>
+</html>
