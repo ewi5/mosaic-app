@@ -1,46 +1,53 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mosaic</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mosaic • v08</title>
+  <link rel="preconnect" href="https://api.open-meteo.com">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="left-bar">
-    <div id="location">📍 locating...</div>
-    <div id="weather">--° · wind --</div>
-    <div id="time"></div>
-  </div>
-  <div class="building">
-    <div class="card">
-      <div class="avatar" style="background:#a26eea;">vv</div>
-      <div class="name">viv</div>
+  <main class="wrap">
+    <!-- SKY (left column) -->
+    <aside class="sky">
+      <div class="sky__badge">auto</div>
+      <div class="sky__stars" aria-hidden="true"></div>
+      <div class="sky__panel">
+        <h1 class="brand">mosaic</h1>
+        <div class="locrow">
+          <span class="pin">📍</span>
+          <span id="coords">—</span>
+        </div>
+        <div id="weather">—</div>
+        <div id="clock">—</div>
+        <p class="hint">left = location • weather • time<br/>right = your people</p>
+      </div>
+    </aside>
+
+    <!-- BUILDING (right column) -->
+    <section class="building">
+      <h2 class="visually-hidden">People</h2>
+      <div id="grid" class="grid"></div>
+    </section>
+  </main>
+
+  <template id="card-tpl">
+    <article class="window">
+      <div class="id">
+        <div class="avatar" aria-hidden="true"></div>
+        <div class="label">
+          <div class="name"></div>
+          <div class="meta">ring = days since proof</div>
+        </div>
+      </div>
       <div class="actions">
-        <button class="knock">knock</button>
+        <button class="pill knock">knock</button>
         <button class="pol">pol</button>
       </div>
-      <div class="ring">ring = days since proof</div>
-    </div>
-    <div class="card">
-      <div class="avatar" style="background:#e67e22;">mm</div>
-      <div class="name">mom</div>
-      <div class="actions">
-        <button class="knock">knock</button>
-        <button class="pol">pol</button>
-      </div>
-      <div class="ring">ring = days since proof</div>
-    </div>
-    <div class="card">
-      <div class="avatar" style="background:#3498db;">dd</div>
-      <div class="name">dad</div>
-      <div class="actions">
-        <button class="knock">knock</button>
-        <button class="pol">pol</button>
-      </div>
-      <div class="ring">ring = days since proof</div>
-    </div>
-  </div>
+    </article>
+  </template>
+
   <script src="script.js"></script>
 </body>
 </html>
