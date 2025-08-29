@@ -1,26 +1,17 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mosaic — classic grid</title>
-  <meta name="theme-color" content="#0d0f14">
-  <link rel="stylesheet" href="style.css?v=202508291018" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mosaic</title>
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="script.js"></script>
 </head>
 <body>
-  <div id="space-bg"></div>
-  <div id="planet"></div>
-
-  <header class="site-header">
+  <header>
     <h1>Mosaic</h1>
-    <span class="geo-pill" id="geoPill">Locating…</span>
+    <div id="location">📍 loading...</div>
   </header>
-
-  <main class="wrap">
-    <section id="grid" class="grid" aria-label="People windows"></section>
-  </main>
-
-  <script>window.__PEOPLE__ = [{"name": "viv", "ring": "8d"}, {"name": "mom", "ring": "7d"}, {"name": "dad", "ring": "7d"}, {"name": "sis", "ring": "2d"}, {"name": "bro", "ring": "5d"}, {"name": "gabe", "ring": "6d"}, {"name": "lang", "ring": "3h"}, {"name": "helen", "ring": "\u2014"}, {"name": "tulio", "ring": "7d"}, {"name": "nina", "ring": "8h"}, {"name": "ryan", "ring": "8d"}, {"name": "kai", "ring": "6d"}];</script>
-  <script src="script.js?v=202508291018" defer></script>
+  <main id="cards"></main>
 </body>
 </html>
