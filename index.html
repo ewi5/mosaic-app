@@ -1,33 +1,26 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mosaic</title>
-  <link rel="manifest" href="site.webmanifest">
-  <link rel="stylesheet" href="style.css" />
-  <meta name="theme-color" content="#0d0d0d">
+  <title>Mosaic — classic grid</title>
+  <meta name="theme-color" content="#0d0f14">
+  <link rel="stylesheet" href="style.css?v=202508291018" />
 </head>
 <body>
-  <header>
+  <div id="space-bg"></div>
+  <div id="planet"></div>
+
+  <header class="site-header">
     <h1>Mosaic</h1>
-    <p>Live prototype — connected via GitHub → Netlify</p>
+    <span class="geo-pill" id="geoPill">Locating…</span>
   </header>
 
-  <main id="grid"></main>
+  <main class="wrap">
+    <section id="grid" class="grid" aria-label="People windows"></section>
+  </main>
 
-  <template id="card-template">
-    <div class="card">
-      <div class="avatar">V</div>
-      <div class="name">viv</div>
-      <div class="actions">
-        <button class="btn knock">knock</button>
-        <button class="btn prove">prove</button>
-      </div>
-      <div class="meta">ring = days since proof</div>
-    </div>
-  </template>
-
-  <script src="script.js"></script>
+  <script>window.__PEOPLE__ = [{"name": "viv", "ring": "8d"}, {"name": "mom", "ring": "7d"}, {"name": "dad", "ring": "7d"}, {"name": "sis", "ring": "2d"}, {"name": "bro", "ring": "5d"}, {"name": "gabe", "ring": "6d"}, {"name": "lang", "ring": "3h"}, {"name": "helen", "ring": "\u2014"}, {"name": "tulio", "ring": "7d"}, {"name": "nina", "ring": "8h"}, {"name": "ryan", "ring": "8d"}, {"name": "kai", "ring": "6d"}];</script>
+  <script src="script.js?v=202508291018" defer></script>
 </body>
 </html>
